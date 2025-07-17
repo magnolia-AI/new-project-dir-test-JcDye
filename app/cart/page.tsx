@@ -110,16 +110,9 @@ export default function CartPage() {
                           </p>
                           {item.selectedVariant && (
                             <div className="flex gap-2 mt-1">
-                              {item.selectedVariant.color && (
                                 <Badge variant="secondary" className="text-xs">
-                                  {item.selectedVariant.color}
+                                  {item.selectedVariant.name}: {item.selectedVariant.value}
                                 </Badge>
-                              )}
-                              {item.selectedVariant.size && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {item.selectedVariant.size}
-                                </Badge>
-                              )}
                             </div>
                           )}
                         </div>
@@ -139,7 +132,7 @@ export default function CartPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
+                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="w-3 h-3" />
@@ -150,7 +143,7 @@ export default function CartPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
+                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                             disabled={item.quantity >= item.product.stock}
                           >
                             <Plus className="w-3 h-3" />
@@ -264,6 +257,9 @@ export default function CartPage() {
     </div>
   )
 }
+
+
+
 
 
 
