@@ -17,21 +17,17 @@ export default function CartPage() {
     updateQuantity, 
     removeFromCart, 
     clearCart,
-    getCartTotal,
-    getCartSubtotal,
-    getCartTax,
-    getCartShipping,
     getCartItemCount
   } = useCart()
 
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {
-      removeFromCart(productId)
+      removeFromCart(itemId)
     } else {
-      updateQuantity(productId, newQuantity)
+      updateQuantity(itemId, newQuantity)
     }
   }
 
@@ -42,11 +38,11 @@ export default function CartPage() {
     }
   }
 
-  const subtotal = getCartSubtotal()
-  const tax = getCartTax()
-  const shipping = getCartShipping()
+  const subtotal = cart.subtotal
+  const tax = cart.tax
+  const shipping = cart.shipping
   const discount = promoApplied ? subtotal * 0.1 : 0
-  const total = getCartTotal() - discount
+  const total = cart.total - discount
 
   if (cart.items.length === 0) {
     return (
@@ -130,7 +126,7 @@ export default function CartPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeFromCart(item.product.id)}
+                          onClick={() => removeFromCart(item.id)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -268,3 +264,7 @@ export default function CartPage() {
     </div>
   )
 }
+
+
+
+
