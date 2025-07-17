@@ -144,7 +144,7 @@ export default function CartPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                            disabled={item.quantity >= item.product.stock}
+                            disabled={item.quantity >= item.product.stockQuantity}
                           >
                             <Plus className="w-3 h-3" />
                           </Button>
@@ -257,6 +257,7 @@ export default function CartPage() {
     </div>
   )
 }
+
 
 
 

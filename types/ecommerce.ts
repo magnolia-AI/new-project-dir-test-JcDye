@@ -69,10 +69,26 @@ export interface Review {
   createdAt: Date
 }
 
+
+export interface SearchFilters {
+  search?: string
+  category?: string
+  minPrice?: number
+  maxPrice?: number
+  brands?: string[]
+  minRating?: number
+  inStock?: boolean
+  tags?: string[]
+  sortBy?: 'relevance' | 'price-low' | 'price-high' | 'rating' | 'newest' | 'popular'
+}
+
 export interface Category {
   id: string
   name: string
   slug: string
+  image: string
+  productCount: number
+  subcategories?: Category[]
   description?: string
   image?: string
   parentId?: string
