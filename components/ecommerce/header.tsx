@@ -22,7 +22,7 @@ import {
 
 export function Header() {
   const { getCartItemCount } = useCart()
-  const { wishlist, getWishlistCount } = useWishlist()
+  const { getWishlistCount } = useWishlist()
   const [searchQuery, setSearchQuery] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -75,76 +75,67 @@ export function Header() {
               <Input
                 type="search"
                 placeholder="Search products..."
+                className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4"
               />
             </form>
           </div>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Search Button - Mobile */}
-            <Button variant="ghost" size="sm" className="lg:hidden">
-              <Search className="h-5 w-5" />
-            </Button>
-
-            {/* Wishlist */}
-            <Link href="/wishlist">
-              <Button variant="ghost" size="sm" className="relative">
-                <Heart className="h-5 w-5" />
-                {wishlistItemCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                  >
-                    {wishlistItemCount > 99 ? '99+' : wishlistItemCount}
-                  </Badge>
-                )}
-              </Button>
-            </Link>
-
-            {/* Cart */}
-            <Link href="/cart">
-              <Button variant="ghost" size="sm" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {cartItemCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                  >
-                    {cartItemCount > 99 ? '99+' : cartItemCount}
-                  </Badge>
-                )}
-              </Button>
-            </Link>
-
-            {/* User Account */}
-            <Button variant="ghost" size="sm">
-              <User className="h-5 w-5" />
-            </Button>
-
-            {/* Theme Toggle */}
+          {/* Icons */}
+          <div className="flex items-center space-x-4">
             <ThemeToggle />
+            <Link href="/wishlist" className="relative">
+              <Heart className="h-6 w-6" />
+              {wishlistItemCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 h-5 w-5 justify-center rounded-full p-0"
+                >
+                  {wishlistItemCount}
+                </Badge>
+              )}
+            </Link>
+            <Link href="/cart" className="relative">
+              <ShoppingCart className="h-6 w-6" />
+              {cartItemCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 h-5 w-5 justify-center rounded-full p-0"
+                >
+                  {cartItemCount}
+                </Badge>
+              )}
+            </Link>
+            <Link href="/account" className="hidden md:block">
+              <Button variant="ghost" size="icon">
+                <User className="h-6 w-6" />
+              </Button>
+            </Link>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Trigger */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="md:hidden">
-                  <Menu className="h-5 w-5" />
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col space-y-6 mt-6">
-                  {/* Mobile Search */}
-                  <form onSubmit={handleSearch} className="relative">
+              <SheetContent side="left" className="w-full max-w-sm">
+                <div className="p-6">
+                  <Link href="/" className="flex items-center space-x-2 mb-8">
+                    <Store className="h-6 w-6" />
+                    <span className="font-bold text-xl">ShopHub</span>
+                  </Link>
+                  
+                  {/* Search Bar - Mobile */}
+                  <form onSubmit={handleSearch} className="relative mb-8">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
                       type="search"
                       placeholder="Search products..."
+                      className="pl-10"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4"
                     />
                   </form>
 
@@ -162,50 +153,18 @@ export function Header() {
                     ))}
                   </nav>
 
-                  {/* Mobile Quick Actions */}
-                  <div className="space-y-3 pt-6 border-t">
-                    <Link
-                      href="/wishlist"
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-accent"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Heart className="h-5 w-5" />
-                        <span>Wishlist</span>
-                      </div>
-                      {wishlistItemCount > 0 && (
-                        <Badge variant="secondary">{wishlistItemCount}</Badge>
-                      )}
+                  <div className="border-t my-6" />
+
+                  <div className="space-y-4">
+                    <Link href="/account" className="flex items-center text-lg" onClick={() => setIsMobileMenuOpen(false)}>
+                      <User className="mr-3 h-5 w-5" /> My Account
                     </Link>
-
-                    <Link
-                      href="/cart"
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-accent"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <ShoppingCart className="h-5 w-5" />
-                        <span>Cart</span>
-                      </div>
-                      {cartItemCount > 0 && (
-                        <Badge variant="secondary">{cartItemCount}</Badge>
-                      )}
+                    <Link href="/orders" className="flex items-center text-lg" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Package className="mr-3 h-5 w-5" /> My Orders
                     </Link>
-
-                    <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-accent">
-                      <User className="h-5 w-5" />
-                      <span>Account</span>
-                    </div>
-
-                    <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-accent">
-                      <Package className="h-5 w-5" />
-                      <span>Orders</span>
-                    </div>
-
-                    <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-accent">
-                      <Settings className="h-5 w-5" />
-                      <span>Settings</span>
-                    </div>
+                    <Link href="/settings" className="flex items-center text-lg" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Settings className="mr-3 h-5 w-5" /> Settings
+                    </Link>
                   </div>
                 </div>
               </SheetContent>
