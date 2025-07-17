@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { ProductGrid } from '@/components/ecommerce/product-grid'
 import { sampleProducts, categories } from '@/lib/sample-products'
 import { ArrowRight, ShoppingBag, Heart, Truck, Shield, Headphones, Star } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Home() {
@@ -104,15 +105,17 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {categories.map((category) => (
               <Link key={category.id} href={`/products?category=${category.id}`}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                  <CardContent className="p-6 text-center">
-                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
-                      {category.icon}
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer group overflow-hidden">
+                  <CardContent className="p-0 text-center">
+                    <div className="relative h-24 w-full group-hover:scale-110 transition-transform">
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
-                    <h3 className="font-semibold text-sm">{category.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {category.productCount} items
-                    </p>
+                    <h3 className="font-semibold text-sm p-4">{category.name}</h3>
                   </CardContent>
                 </Card>
               </Link>
@@ -245,3 +248,6 @@ export default function Home() {
     </div>
   )
 }
+
+
+

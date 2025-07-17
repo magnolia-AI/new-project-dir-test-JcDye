@@ -17,21 +17,17 @@ export default function CartPage() {
     updateQuantity, 
     removeFromCart, 
     clearCart,
-    getCartTotal,
-    getCartSubtotal,
-    getCartTax,
-    getCartShipping,
     getCartItemCount
   } = useCart()
 
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {
-      removeFromCart(productId)
+      removeFromCart(itemId)
     } else {
-      updateQuantity(productId, newQuantity)
+      updateQuantity(itemId, newQuantity)
     }
   }
 
@@ -42,11 +38,11 @@ export default function CartPage() {
     }
   }
 
-  const subtotal = getCartSubtotal()
-  const tax = getCartTax()
-  const shipping = getCartShipping()
+  const subtotal = cart.subtotal
+  const tax = cart.tax
+  const shipping = cart.shipping
   const discount = promoApplied ? subtotal * 0.1 : 0
-  const total = getCartTotal() - discount
+  const total = cart.total - discount
 
   if (cart.items.length === 0) {
     return (
@@ -114,23 +110,16 @@ export default function CartPage() {
                           </p>
                           {item.selectedVariant && (
                             <div className="flex gap-2 mt-1">
-                              {item.selectedVariant.color && (
                                 <Badge variant="secondary" className="text-xs">
-                                  {item.selectedVariant.color}
+                                  {item.selectedVariant.name}: {item.selectedVariant.value}
                                 </Badge>
-                              )}
-                              {item.selectedVariant.size && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {item.selectedVariant.size}
-                                </Badge>
-                              )}
                             </div>
                           )}
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeFromCart(item.product.id)}
+                          onClick={() => removeFromCart(item.id)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -143,7 +132,7 @@ export default function CartPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
+                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="w-3 h-3" />
@@ -154,8 +143,8 @@ export default function CartPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
-                            disabled={item.quantity >= item.product.stock}
+                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                            disabled={item.quantity >= item.product.stockQuantity}
                           >
                             <Plus className="w-3 h-3" />
                           </Button>
@@ -268,3 +257,11 @@ export default function CartPage() {
     </div>
   )
 }
+
+
+
+
+
+
+
+

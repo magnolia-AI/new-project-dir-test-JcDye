@@ -19,7 +19,7 @@ export default function ProductsPage() {
     minRating: 0,
     inStock: false,
     tags: [],
-    sortBy: 'name'
+    sortBy: 'relevance'
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -61,7 +61,7 @@ export default function ProductsPage() {
 
     // Stock filter
     if (filters.inStock) {
-      filtered = filtered.filter(product => product.stock > 0)
+      filtered = filtered.filter(product => product.stockQuantity > 0)
     }
 
     // Tags filter
@@ -83,128 +83,71 @@ export default function ProductsPage() {
         filtered.sort((a, b) => b.rating - a.rating)
         break
       case 'newest':
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         break
       case 'popular':
         filtered.sort((a, b) => b.reviewCount - a.reviewCount)
         break
       default:
-        filtered.sort((a, b) => a.name.localeCompare(b.name))
+        // relevance (default) - could be based on a combination of factors
+        // for now, we'll just use the default order
+        break
     }
 
     return filtered
   }, [filters])
 
-  const handleFiltersChange = (newFilters: SearchFiltersType) => {
+  const handleFiltersChange = (newFilters: Partial<SearchFiltersType>) => {
     setIsLoading(true)
-    setFilters(newFilters)
-    // Simulate loading delay
-    setTimeout(() => setIsLoading(false), 300)
-  }
-
-  const clearFilters = () => {
-    setFilters({
-      search: '',
-      category: '',
-      minPrice: 0,
-      maxPrice: 1000,
-      brands: [],
-      minRating: 0,
-      inStock: false,
-      tags: [],
-      sortBy: 'name'
-    })
+    // Simulate API call
+    setTimeout(() => {
+      setFilters(prev => ({ ...prev, ...newFilters }))
+      setIsLoading(false)
+    }, 300)
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-          <p className="text-muted-foreground mt-2">
-            Discover our collection of {sampleProducts.length} amazing products
-          </p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Desktop Filters */}
+        <div className="hidden lg:block">
+          <SearchFilters
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            tags={[...new Set(sampleProducts.flatMap(p => p.tags))]}
+          />
         </div>
 
-        <div className="flex gap-8">
-          {/* Desktop Filters Sidebar */}
-          <div className="hidden lg:block w-80 flex-shrink-0">
-            <div className="sticky top-8">
-              <SearchFilters
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
-                categories={categories}
-                onClearFilters={clearFilters}
-              />
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Mobile Filter Button */}
-            <div className="lg:hidden mb-6">
+        {/* Mobile Filters & Products */}
+        <div className="lg:col-span-3">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">Products</h1>
+            <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline">
                     <Filter className="w-4 h-4 mr-2" />
-                    Filters & Search
+                    Filters
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-80 p-0">
-                  <div className="p-6">
-                    <SearchFilters
-                      filters={filters}
-                      onFiltersChange={handleFiltersChange}
-                      categories={categories}
-                      onClearFilters={clearFilters}
-                    />
-                  </div>
+                <SheetContent>
+                  <SearchFilters
+                    filters={filters}
+                    onFiltersChange={handleFiltersChange}
+                    tags={[...new Set(sampleProducts.flatMap(p => p.tags))]}
+                  />
                 </SheetContent>
               </Sheet>
             </div>
-
-            {/* Results Summary */}
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Showing {filteredProducts.length} of {sampleProducts.length} products
-                {filters.search && (
-                  <span> for "{filters.search}"</span>
-                )}
-                {filters.category && (
-                  <span> in {categories.find(c => c.id === filters.category)?.name}</span>
-                )}
-              </p>
-              
-              {(filters.search || filters.category || filters.brands.length > 0 || 
-                filters.minRating > 0 || filters.inStock || filters.tags.length > 0 ||
-                filters.minPrice > 0 || filters.maxPrice < 1000) && (
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  Clear all filters
-                </Button>
-              )}
-            </div>
-
-            {/* Product Grid */}
-            <ProductGrid products={filteredProducts} isLoading={isLoading} />
-
-            {/* No Results Message */}
-            {!isLoading && filteredProducts.length === 0 && (
-              <div className="text-center py-12">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-semibold mb-2">No products found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Try adjusting your filters or search terms to find what you're looking for.
-                  </p>
-                  <Button onClick={clearFilters}>
-                    Clear all filters
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
+          {isLoading ? (
+            <div className="text-center">Loading...</div>
+          ) : (
+            <ProductGrid products={filteredProducts} />
+          )}
         </div>
       </div>
     </div>
   )
 }
+

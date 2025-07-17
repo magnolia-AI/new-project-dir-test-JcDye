@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
 import { Product, WishlistItem } from '@/types/ecommerce'
 import { useToast } from '@/hooks/use-toast'
 
@@ -26,10 +26,9 @@ const wishlistReducer = (state: WishlistItem[], action: WishlistAction): Wishlis
     case 'ADD_ITEM': {
       const { product } = action.payload
       
-      // Check if item already exists
       const existingItem = state.find(item => item.productId === product.id)
       if (existingItem) {
-        return state // Don't add duplicates
+        return state
       }
 
       const newItem: WishlistItem = {
@@ -63,7 +62,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlist, dispatch] = useReducer(wishlistReducer, [])
   const { toast } = useToast()
 
-  // Load wishlist from localStorage on mount
   useEffect(() => {
     const savedWishlist = localStorage.getItem('ecommerce-wishlist')
     if (savedWishlist) {
@@ -76,74 +74,64 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Save wishlist to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('ecommerce-wishlist', JSON.stringify(wishlist))
   }, [wishlist])
 
-  const addToWishlist = (product: Product) => {
-    const existingItem = wishlist.find(item => item.productId === product.id)
-    
-    if (existingItem) {
-      toast({
-        title: "Already in Wishlist",
-        description: "This item is already in your wishlist.",
-      })
-      return
-    }
-
+  const addToWishlist = useCallback((product: Product) => {
     dispatch({ type: 'ADD_ITEM', payload: { product } })
-    
     toast({
       title: "Added to Wishlist",
       description: `${product.name} has been added to your wishlist.`,
     })
-  }
+  }, [toast])
 
-  const removeFromWishlist = (productId: string) => {
+  const removeFromWishlist = useCallback((productId: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: { productId } })
-    
     toast({
       title: "Removed from Wishlist",
-      description: "Item has been removed from your wishlist.",
+      description: "The item has been removed from your wishlist.",
+      variant: "destructive"
     })
-  }
+  }, [toast])
 
-  const clearWishlist = () => {
+  const clearWishlist = useCallback(() => {
     dispatch({ type: 'CLEAR_WISHLIST' })
-    
     toast({
       title: "Wishlist Cleared",
-      description: "All items have been removed from your wishlist.",
+      description: "Your wishlist has been emptied.",
     })
-  }
+  }, [toast])
 
-  const isInWishlist = (productId: string): boolean => {
+  const isInWishlist = useCallback((productId: string) => {
     return wishlist.some(item => item.productId === productId)
-  }
+  }, [wishlist])
 
-  const getWishlistCount = (): number => {
+  const getWishlistCount = useCallback(() => {
     return wishlist.length
+  }, [wishlist])
+
+  const value = {
+    wishlist,
+    addToWishlist,
+    removeFromWishlist,
+    clearWishlist,
+    isInWishlist,
+    getWishlistCount,
   }
 
   return (
-    <WishlistContext.Provider value={{
-      wishlist,
-      addToWishlist,
-      removeFromWishlist,
-      clearWishlist,
-      isInWishlist,
-      getWishlistCount
-    }}>
+    <WishlistContext.Provider value={value}>
       {children}
     </WishlistContext.Provider>
   )
 }
 
-export function useWishlist() {
+export const useWishlist = () => {
   const context = useContext(WishlistContext)
   if (context === undefined) {
     throw new Error('useWishlist must be used within a WishlistProvider')
   }
   return context
 }
+
