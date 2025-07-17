@@ -32,7 +32,7 @@ const sortOptions = [
 
 const brands = ['Apple', 'Sony', 'Samsung', 'Nike', 'Adidas', 'EcoWear', 'TechFlow', 'LightCraft']
 
-export function SearchFilters({ filters, onFiltersChange, resultCount }: SearchFiltersProps) {
+export function SearchFilters({ filters, onFiltersChange, resultCount, tags }: SearchFiltersProps) {
   const [priceRange, setPriceRange] = useState<[number, number]>([
     filters.minPrice || 0,
     filters.maxPrice || 1000
@@ -74,296 +74,234 @@ export function SearchFilters({ filters, onFiltersChange, resultCount }: SearchF
     updateFilters({ tags: updatedTags })
   }
 
-  const getActiveFiltersCount = () => {
+  const activeFilterCount = () => {
     let count = 0
     if (filters.category) count++
-    if (filters.brands?.length) count += filters.brands.length
     if (filters.minPrice || filters.maxPrice) count++
-    if (filters.rating) count++
+    if (filters.brands && filters.brands.length > 0) count++
+    if (filters.tags && filters.tags.length > 0) count++
+    // if (filters.rating) count++
     if (filters.inStock) count++
-    if (filters.tags?.length) count += filters.tags.length
     return count
   }
 
-  const FilterContent = () => (
+  const renderFilters = (isMobile: boolean = false) => (
     <div className="space-y-6">
       {/* Category Filter */}
-      <div>
-        <h3 className="font-medium mb-3">Category</h3>
-        <Select value={filters.category || ''} onValueChange={(value) => updateFilters({ category: value || undefined })}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.slug}>
-                {category.name}
-              </SelectItem>
+      <Collapsible defaultOpen>
+        <CollapsibleTrigger className="flex items-center justify-between w-full">
+          <h4 className="text-lg font-semibold">Category</h4>
+          <ChevronDown className="w-5 h-5" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4">
+          <ul className="space-y-2">
+            {categories.map(category => (
+              <li key={category.id}>
+                <Button
+                  variant={filters.category === category.id ? 'secondary' : 'ghost'}
+                  className="w-full justify-start"
+                  onClick={() => updateFilters({ category: category.id })}
+                >
+                  {category.name}
+                </Button>
+              </li>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
+          </ul>
+        </CollapsibleContent>
+      </Collapsible>
 
-      {/* Price Range */}
-      <div>
-        <h3 className="font-medium mb-3">Price Range</h3>
-        <div className="px-2">
+      <Separator />
+
+      {/* Price Range Filter */}
+      <Collapsible defaultOpen>
+        <CollapsibleTrigger className="flex items-center justify-between w-full">
+          <h4 className="text-lg font-semibold">Price Range</h4>
+          <ChevronDown className="w-5 h-5" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4">
           <Slider
+            min={0}
+            max={1000}
+            step={10}
             value={priceRange}
             onValueChange={handlePriceRangeChange}
-            max={1000}
-            min={0}
-            step={10}
-            className="mb-4"
           />
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex justify-between mt-2 text-sm">
             <span>${priceRange[0]}</span>
             <span>${priceRange[1]}</span>
           </div>
-        </div>
-      </div>
+        </CollapsibleContent>
+      </Collapsible>
 
-      {/* Brands */}
-      <div>
-        <h3 className="font-medium mb-3">Brands</h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {brands.map((brand) => (
-            <div key={brand} className="flex items-center space-x-2">
-              <Checkbox
-                id={`brand-${brand}`}
-                checked={filters.brands?.includes(brand) || false}
-                onCheckedChange={() => toggleBrand(brand)}
-              />
-              <label
-                htmlFor={`brand-${brand}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {brand}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Separator />
 
-      {/* Rating */}
-      <div>
-        <h3 className="font-medium mb-3">Minimum Rating</h3>
-        <Select 
-          value={filters.rating?.toString() || ''} 
-          onValueChange={(value) => updateFilters({ rating: value ? parseInt(value) : undefined })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Any Rating" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Any Rating</SelectItem>
-            <SelectItem value="4">4+ Stars</SelectItem>
-            <SelectItem value="3">3+ Stars</SelectItem>
-            <SelectItem value="2">2+ Stars</SelectItem>
-            <SelectItem value="1">1+ Stars</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Availability */}
-      <div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="in-stock"
-            checked={filters.inStock || false}
-            onCheckedChange={(checked) => updateFilters({ inStock: checked as boolean })}
-          />
-          <label
-            htmlFor="in-stock"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      {/* Rating Filter */}
+      {/* <Collapsible defaultOpen>
+        <CollapsibleTrigger className="flex items-center justify-between w-full">
+          <h4 className="text-lg font-semibold">Rating</h4>
+          <ChevronDown className="w-5 h-5" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4">
+          <Select
+            // value={filters.rating?.toString() || ''}
+            // onValueChange={(value) => updateFilters({ rating: value ? parseInt(value) : undefined })}
           >
-            In Stock Only
-          </label>
-        </div>
-      </div>
-
-      {/* Popular Tags */}
-      <div>
-        <h3 className="font-medium mb-3">Popular Tags</h3>
-        <div className="flex flex-wrap gap-2">
-          {['premium', 'wireless', 'organic', 'fast', 'portable', 'sustainable'].map((tag) => (
-            <Badge
-              key={tag}
-              variant={filters.tags?.includes(tag) ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => toggleTag(tag)}
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      {/* Clear Filters */}
-      {getActiveFiltersCount() > 0 && (
-        <Button variant="outline" onClick={clearFilters} className="w-full">
-          Clear All Filters
-        </Button>
-      )}
-    </div>
-  )
-
-  return (
-    <div className="space-y-4">
-      {/* Search Bar and Sort */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search products..."
-            value={filters.query || ''}
-            onChange={(e) => updateFilters({ query: e.target.value })}
-            className="pl-10"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <Select 
-            value={filters.sortBy || 'relevance'} 
-            onValueChange={(value) => updateFilters({ sortBy: value as any })}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue />
+            <SelectTrigger>
+              <SelectValue placeholder="Select minimum rating" />
             </SelectTrigger>
             <SelectContent>
-              {sortOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+              {[4, 3, 2, 1].map(star => (
+                <SelectItem key={star} value={star.toString()}>
+                  {star} & up
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </CollapsibleContent>
+      </Collapsible> */}
 
-          {/* Mobile Filter Button */}
+      <Separator />
+
+      {/* Brands Filter */}
+      <Collapsible defaultOpen>
+        <CollapsibleTrigger className="flex items-center justify-between w-full">
+          <h4 className="text-lg font-semibold">Brands</h4>
+          <ChevronDown className="w-5 h-5" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4">
+          <div className="space-y-2">
+            {brands.map(brand => (
+              <div key={brand} className="flex items-center">
+                <Checkbox
+                  id={`brand-${brand}`}
+                  checked={filters.brands?.includes(brand)}
+                  onCheckedChange={() => toggleBrand(brand)}
+                />
+                <label htmlFor={`brand-${brand}`} className="ml-2 text-sm">
+                  {brand}
+                </label>
+              </div>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator />
+
+      {/* Tags Filter */}
+      <Collapsible defaultOpen>
+        <CollapsibleTrigger className="flex items-center justify-between w-full">
+          <h4 className="text-lg font-semibold">Tags</h4>
+          <ChevronDown className="w-5 h-5" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4">
+          <div className="flex flex-wrap gap-2">
+            {tags.map(tag => (
+              <Badge
+                key={tag}
+                variant={filters.tags?.includes(tag) ? 'default' : 'outline'}
+                onClick={() => toggleTag(tag)}
+                className="cursor-pointer"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator />
+
+      {/* In Stock Filter */}
+      <div className="flex items-center justify-between">
+        <h4 className="text-lg font-semibold">In Stock Only</h4>
+        <Checkbox
+          checked={filters.inStock}
+          onCheckedChange={(checked) => updateFilters({ inStock: !!checked })}
+        />
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      {/* Desktop Filters */}
+      <aside className="hidden lg:block lg:w-72 xl:w-80 lg:flex-shrink-0">
+        <div className="p-6 border-r border-border h-full">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold">Filters</h3>
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Clear All
+            </Button>
+          </div>
+          {renderFilters()}
+        </div>
+      </aside>
+
+      {/* Mobile Filters */}
+      <div className="lg:hidden mb-4">
+        <div className="flex items-center gap-4 p-4 border-b border-border">
+          <Input
+            placeholder="Search products..."
+            // value={filters.query || ''}
+            // onChange={(e) => updateFilters({ query: e.target.value })}
+            className="flex-grow"
+          />
           <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" className="sm:hidden">
-                <Filter className="h-4 w-4 mr-2" />
+              <Button variant="outline" className="relative">
+                <Filter className="w-5 h-5 mr-2" />
                 Filters
-                {getActiveFiltersCount() > 0 && (
-                  <Badge variant="secondary" className="ml-2">
-                    {getActiveFiltersCount()}
+                {activeFilterCount() > 0 && (
+                  <Badge variant="destructive" className="absolute -top-2 -right-2 rounded-full h-5 w-5 p-0 flex items-center justify-center">
+                    {activeFilterCount()}
                   </Badge>
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80">
+            <SheetContent className="w-full max-w-sm">
               <SheetHeader>
                 <SheetTitle>Filters</SheetTitle>
               </SheetHeader>
-              <div className="mt-6">
-                <FilterContent />
+              <div className="p-4 overflow-y-auto">
+                {renderFilters(true)}
               </div>
             </SheetContent>
           </Sheet>
         </div>
-      </div>
-
-      {/* Active Filters */}
-      {getActiveFiltersCount() > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">Active filters:</span>
-          
+        <div className="p-4 flex flex-wrap gap-2 items-center">
           {filters.category && (
-            <Badge variant="secondary" className="gap-1">
-              {categories.find(c => c.slug === filters.category)?.name}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilters({ category: undefined })}
-              />
+            <Badge variant="secondary">
+              {categories.find(c => c.id === filters.category)?.name}
+              <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => updateFilters({ category: undefined })} />
             </Badge>
           )}
-          
-          {filters.brands?.map((brand) => (
-            <Badge key={brand} variant="secondary" className="gap-1">
-              {brand}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => toggleBrand(brand)}
-              />
-            </Badge>
-          ))}
-          
-          {(filters.minPrice || filters.maxPrice) && (
-            <Badge variant="secondary" className="gap-1">
-              ${filters.minPrice || 0} - ${filters.maxPrice || 1000}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilters({ minPrice: undefined, maxPrice: undefined })}
-              />
-            </Badge>
-          )}
-          
-          {filters.rating && (
-            <Badge variant="secondary" className="gap-1">
+          {/* {filters.rating && (
+            <Badge variant="secondary">
               {filters.rating}+ Stars
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilters({ rating: undefined })}
-              />
+              <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => updateFilters({ rating: undefined })} />
             </Badge>
-          )}
-          
-          {filters.inStock && (
-            <Badge variant="secondary" className="gap-1">
-              In Stock
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilters({ inStock: undefined })}
-              />
-            </Badge>
-          )}
-          
-          {filters.tags?.map((tag) => (
-            <Badge key={tag} variant="secondary" className="gap-1">
-              {tag}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => toggleTag(tag)}
-              />
+          )} */}
+          {filters.brands?.map(brand => (
+            <Badge key={brand} variant="secondary">
+              {brand}
+              <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => toggleBrand(brand)} />
             </Badge>
           ))}
-        </div>
-      )}
-
-      {/* Results Count */}
-      {resultCount !== undefined && (
-        <div className="text-sm text-muted-foreground">
-          {resultCount} {resultCount === 1 ? 'product' : 'products'} found
-        </div>
-      )}
-
-      {/* Desktop Filters Sidebar */}
-      <div className="hidden sm:block">
-        <Collapsible>
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              <span className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filters
-                {getActiveFiltersCount() > 0 && (
-                  <Badge variant="secondary">
-                    {getActiveFiltersCount()}
-                  </Badge>
-                )}
-              </span>
-              <ChevronDown className="h-4 w-4" />
+          {filters.tags?.map(tag => (
+            <Badge key={tag} variant="secondary">
+              {tag}
+              <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => toggleTag(tag)} />
+            </Badge>
+          ))}
+          {activeFilterCount() > 0 && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Clear All
             </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
-            <div className="border rounded-lg p-4">
-              <FilterContent />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

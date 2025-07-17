@@ -70,6 +70,38 @@ export interface Review {
 }
 
 
+export interface Category {
+  id: string
+  name: string
+
+  subcategory?: string
+  minPrice?: number
+  maxPrice?: number
+  brands?: string[]
+  tags?: string[]
+  sortBy?: 'price-asc' | 'price-desc' | 'rating' | 'newest'
+  inStock?: boolean
+  rating?: number
+  query?: string
+
+  slug: string
+  description: string
+  image: string
+  productCount: number
+  subcategories: Subcategory[]
+}
+
+export interface Subcategory {
+  id: string
+  rating?: number;
+  query?: string;
+  name: string
+  slug: string
+  parentId: string
+  productCount: number
+}
+
+
 export interface SearchFilters {
   search?: string
   category?: string
