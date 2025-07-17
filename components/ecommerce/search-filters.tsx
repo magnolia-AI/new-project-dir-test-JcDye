@@ -16,8 +16,9 @@ import { Separator } from '@/components/ui/separator'
 
 interface SearchFiltersProps {
   filters: SearchFiltersType
-  onFiltersChange: (filters: SearchFiltersType) => void
+  onFiltersChange: (filters: Partial<SearchFiltersType>) => void
   resultCount?: number
+  tags: string[]
 }
 
 const sortOptions = [
@@ -365,3 +366,4 @@ export function SearchFilters({ filters, onFiltersChange, resultCount }: SearchF
     </div>
   )
 }
+

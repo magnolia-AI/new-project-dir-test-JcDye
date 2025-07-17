@@ -56,7 +56,7 @@ export interface WishlistItem {
 }
 
 export interface Review {
-  id: string
+  id:string
   productId: string
   userId: string
   userName: string
@@ -76,82 +76,9 @@ export interface SearchFilters {
   minPrice?: number
   maxPrice?: number
   brands?: string[]
+  tags?: string[]
+  sortBy?: string
+  inStock?: boolean
   minRating?: number
-  inStock?: boolean
-  tags?: string[]
-  sortBy?: 'relevance' | 'price-low' | 'price-high' | 'rating' | 'newest' | 'popular'
 }
 
-export interface Category {
-  id: string
-  name: string
-  slug: string
-  image: string
-  productCount: number
-  subcategories?: Category[]
-  description?: string
-  image?: string
-  parentId?: string
-  subcategories?: Category[]
-  productCount: number
-}
-
-export interface FilterOptions {
-  categories: string[]
-  priceRange: [number, number]
-  brands: string[]
-  rating: number
-  inStock: boolean
-  tags: string[]
-}
-
-export interface SearchFilters {
-  query?: string
-  category?: string
-  subcategory?: string
-  brand?: string
-  minPrice?: number
-  maxPrice?: number
-  rating?: number
-  inStock?: boolean
-  tags?: string[]
-  sortBy?: 'relevance' | 'price-low' | 'price-high' | 'rating' | 'newest' | 'popular'
-}
-
-export interface Order {
-  id: string
-  userId?: string
-  items: CartItem[]
-  total: number
-  subtotal: number
-  tax: number
-  shipping: number
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-  shippingAddress: Address
-  billingAddress: Address
-  paymentMethod: string
-  trackingNumber?: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-export interface Address {
-  firstName: string
-  lastName: string
-  company?: string
-  address1: string
-  address2?: string
-  city: string
-  state: string
-  zipCode: string
-  country: string
-  phone?: string
-}
-
-export interface ShippingOption {
-  id: string
-  name: string
-  description: string
-  price: number
-  estimatedDays: number
-}
