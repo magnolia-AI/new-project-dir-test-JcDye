@@ -13,7 +13,17 @@ interface WishlistContextType {
   getWishlistCount: () => number
 }
 
-const WishlistContext = createContext<WishlistContextType | undefined>(undefined)
+// Create a default value for the context that matches the interface
+const defaultWishlistContext: WishlistContextType = {
+  wishlist: [],
+  addToWishlist: () => {},
+  removeFromWishlist: () => {},
+  clearWishlist: () => {},
+  isInWishlist: () => false,
+  getWishlistCount: () => 0,
+}
+
+const WishlistContext = createContext<WishlistContextType>(defaultWishlistContext)
 
 type WishlistAction =
   | { type: 'ADD_ITEM'; payload: { product: Product } }
@@ -81,7 +91,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const addToWishlist = useCallback((product: Product) => {
     dispatch({ type: 'ADD_ITEM', payload: { product } })
     toast({
-      title: "Added to Wishlist",
+      title: 'Added to Wishlist',
       description: `${product.name} has been added to your wishlist.`,
     })
   }, [toast])
@@ -89,17 +99,16 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const removeFromWishlist = useCallback((productId: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: { productId } })
     toast({
-      title: "Removed from Wishlist",
-      description: "The item has been removed from your wishlist.",
-      variant: "destructive"
+      title: 'Removed from Wishlist',
+      description: 'The item has been removed from your wishlist.',
     })
   }, [toast])
 
   const clearWishlist = useCallback(() => {
     dispatch({ type: 'CLEAR_WISHLIST' })
     toast({
-      title: "Wishlist Cleared",
-      description: "Your wishlist has been emptied.",
+      title: 'Wishlist Cleared',
+      description: 'Your wishlist has been emptied.',
     })
   }, [toast])
 

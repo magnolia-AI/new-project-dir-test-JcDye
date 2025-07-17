@@ -9,12 +9,13 @@ import { Heart, ShoppingCart, Trash2, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star } from 'lucide-react'
+import { Product } from '@/types/ecommerce'
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, clearWishlist } = useWishlist()
   const { addToCart } = useCart()
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     addToCart(product)
     removeFromWishlist(product.id)
   }
@@ -57,7 +58,7 @@ export default function WishlistPage() {
                 {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} saved
               </p>
             </div>
-            {wishlist.items.length > 0 && (
+            {wishlist.length > 0 && (
               <Button
                 variant="outline"
                 onClick={clearWishlist}
@@ -72,147 +73,81 @@ export default function WishlistPage() {
 
         {/* Wishlist Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {wishlist.items.map((item) => (
-            <Card key={item.product.id} className="group hover:shadow-lg transition-shadow">
+          {wishlist.map((item) => (
+            <Card key={item.id} className="overflow-hidden group">
               <CardContent className="p-0">
-                {/* Product Image */}
-                <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                  <Image
-                    src={item.product.images[0]}
-                    alt={item.product.name}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                  />
-                  
-                  {/* Remove from Wishlist Button */}
+                <div className="relative">
+                  <Link href={`/product/${item.product.id}`}>
+                    <Image
+                      src={item.product.images[0]}
+                      alt={item.product.name}
+                      width={400}
+                      height={400}
+                      className="object-cover w-full h-64 group-hover:scale-105 transition-transform"
+                    />
+                  </Link>
+                  {item.product.originalPrice && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute top-3 left-3"
+                    >
+                      SALE
+                    </Badge>
+                  )}
                   <Button
+                    size="icon"
                     variant="secondary"
-                    size="sm"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removeFromWishlist(item.product.id)}
+                    className="absolute top-3 right-3"
+                    onClick={() => removeFromWishlist(item.productId)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5" />
                   </Button>
-
-                  {/* Stock Badge */}
-                  {item.product.stock === 0 && (
-                    <Badge variant="destructive" className="absolute top-2 left-2">
-                      Out of Stock
-                    </Badge>
-                  )}
-                  {item.product.stock > 0 && item.product.stock <= 5 && (
-                    <Badge variant="secondary" className="absolute top-2 left-2">
-                      Low Stock
-                    </Badge>
-                  )}
                 </div>
-
-                {/* Product Details */}
                 <div className="p-4">
-                  <div className="mb-2">
-                    <h3 className="font-semibold text-lg leading-tight line-clamp-2">
-                      {item.product.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {item.product.brand}
-                    </p>
-                  </div>
-
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 mb-2">
-                    <div className="flex">
+                  <h3 className="font-semibold text-lg mb-2">
+                    <Link href={`/product/${item.product.id}`}>{item.product.name}</Link>
+                  </h3>
+                  <div className="flex items-center mb-2">
+                    <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
                           className={`w-4 h-4 ${
-                            i < Math.floor(item.product.rating)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
+                            i < Math.round(item.product.rating)
+                              ? 'text-yellow-400 fill-yellow-400'
+                              : 'text-muted-foreground'
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      ({item.product.reviewCount})
+                    <span className="text-xs text-muted-foreground ml-2">
+                      ({item.product.reviewCount} reviews)
                     </span>
                   </div>
-
-                  {/* Price */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold">
-                        ${item.product.price.toFixed(2)}
-                      </span>
-                      {item.product.originalPrice && item.product.originalPrice > item.product.price && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          ${item.product.originalPrice.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <p className="text-xl font-bold">
+                      ${item.product.price.toFixed(2)}
+                    </p>
+                    {item.product.originalPrice && (
+                      <p className="text-sm text-muted-foreground line-through">
+                        ${item.product.originalPrice.toFixed(2)}
+                      </p>
+                    )}
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-2">
-                    <Button
-                      className="w-full"
-                      onClick={() => handleAddToCart(item.product)}
-                      disabled={item.product.stock === 0}
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      {item.product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => removeFromWishlist(item.product.id)}
-                    >
-                      <Heart className="w-4 h-4 mr-2 fill-current" />
-                      Remove from Wishlist
-                    </Button>
-                  </div>
-
-                  {/* Added Date */}
-                  <p className="text-xs text-muted-foreground mt-3 text-center">
-                    Added {new Date(item.addedAt).toLocaleDateString()}
-                  </p>
+                  <Button
+                    className="w-full"
+                    onClick={() => handleAddToCart(item.product)}
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Add to Cart
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-
-        {/* Quick Actions */}
-        {wishlist.items.length > 0 && (
-          <div className="mt-12 text-center">
-            <div className="max-w-md mx-auto">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-              <div className="flex gap-4 justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    wishlist.items.forEach(item => {
-                      if (item.product.stock > 0) {
-                        addToCart(item.product)
-                      }
-                    })
-                    clearWishlist()
-                  }}
-                >
-                  Add All to Cart
-                </Button>
-                <Link href="/products">
-                  <Button variant="outline">
-                    Continue Shopping
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
 }
-
 
