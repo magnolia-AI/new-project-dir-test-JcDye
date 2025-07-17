@@ -19,7 +19,7 @@ export default function WishlistPage() {
     removeFromWishlist(product.id)
   }
 
-  if (wishlist.items.length === 0) {
+  if (wishlist.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
@@ -54,7 +54,7 @@ export default function WishlistPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">My Wishlist</h1>
               <p className="text-muted-foreground mt-2">
-                {wishlist.items.length} {wishlist.items.length === 1 ? 'item' : 'items'} saved
+                {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} saved
               </p>
             </div>
             {wishlist.items.length > 0 && (
@@ -214,3 +214,5 @@ export default function WishlistPage() {
     </div>
   )
 }
+
+

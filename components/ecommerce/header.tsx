@@ -22,12 +22,12 @@ import {
 
 export function Header() {
   const { getCartItemCount } = useCart()
-  const { wishlist } = useWishlist()
+  const { wishlist, getWishlistCount } = useWishlist()
   const [searchQuery, setSearchQuery] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const cartItemCount = getCartItemCount()
-  const wishlistItemCount = wishlist.items.length
+  const wishlistItemCount = getWishlistCount()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -216,3 +216,4 @@ export function Header() {
     </header>
   )
 }
+
